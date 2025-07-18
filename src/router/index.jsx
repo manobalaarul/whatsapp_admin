@@ -3,6 +3,8 @@ import Home from "../pages/Home";
 import App from "../App";
 import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
+import Auth from "../layouts/Auth";
+import Login from "../pages/auth/Login";
 
 const router = createBrowserRouter([
   {
@@ -22,7 +24,16 @@ const router = createBrowserRouter([
         element: <Settings />,
       },
     ],
-  },
+  },{
+     path: "/auth",
+    element: <Auth />,
+    children:[
+      {
+        path:"login",
+        element: <Login/>
+      }
+    ]
+  }
  
 ]);
 
