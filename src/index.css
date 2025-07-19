@@ -4,12 +4,9 @@
 @tailwind components;
 @tailwind utilities;
 
-<<<<<<< Updated upstream
 body {
   font-family: "Josefin Sans", serif;
   font-style: normal;
   scroll-behavior: smooth;
   @apply text-neutral-700;
 }
-=======
->>>>>>> Stashed changes
