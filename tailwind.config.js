@@ -4,11 +4,12 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode:'class',
   theme: {
     extend: {
       colors: {
-        "primary-bg": "#7397ff",
-        "primary-color": "#7397ff",
+        "primary" : "#5d87ff",
+        "primary-bg": "#5d87ff",
       }
     },
   },

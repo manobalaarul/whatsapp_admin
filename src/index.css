@@ -8,5 +8,11 @@ body {
   font-family: "Josefin Sans", serif;
   font-style: normal;
   scroll-behavior: smooth;
-  @apply text-neutral-700;
+  @apply text-gray-900 dark:text-white;
+
 }
+
+html {
+  @apply bg-white dark:bg-gray-900;
+}
+
