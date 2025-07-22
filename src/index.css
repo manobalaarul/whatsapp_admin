@@ -16,3 +16,16 @@ html {
   @apply bg-white dark:bg-gray-900;
 }
 
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollBarCustom::-webkit-scrollbar {
+  width: 5px;
+  @apply bg-gray-200;
+}
+
+.scrollBarCustom::-webkit-scrollbar-thumb {
+  @apply bg-gray-400;
+}

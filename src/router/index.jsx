@@ -5,6 +5,7 @@ import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
 import Auth from "../layouts/Auth";
 import Login from "../pages/auth/Login";
+import Chat from "../pages/Chat";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +15,10 @@ const router = createBrowserRouter([
       {
         path: "",
         element: <Home />,
+      },
+      {
+        path: "chat",
+        element: <Chat />,
       },
       {
         path: "profile",

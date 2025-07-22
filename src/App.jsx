@@ -11,7 +11,7 @@ const App = () => {
       <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       <div className="flex-1 flex flex-col">
         <Navbar toggleSidebar={() => setIsCollapsed(!isCollapsed)} />
-        <main className="p-4 flex-1 bg-gray-50 dark:bg-gray-800">
+        <main className="p-4 flex-1 bg-gray-50 dark:bg-gray-800 overflow-hidden">
           <Outlet/>
         </main>
       </div>

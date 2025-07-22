@@ -1,9 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { MdHome, MdPerson, MdSettings } from "react-icons/md";
+import { MdChatBubble, MdHome, MdPerson, MdSettings } from "react-icons/md";
+import Logo from '../assets/images/logo/growsoon.jpg';
 
 const menu = [
   { icon: <MdHome size={20} />, label: "Home", to: "/" },
+  { icon: <MdChatBubble size={20} />, label: "Chat", to: "/chat" },
   { icon: <MdPerson size={20} />, label: "Profile", to: "/profile" },
   { icon: <MdSettings size={20} />, label: "Settings", to: "/settings" },
 ];
@@ -21,7 +23,9 @@ const Sidebar = ({ isCollapsed }) => {
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
     >
-      <div className="p-4 font-bold text-xl text-gray-900 dark:text-white">Logo</div>
+      <div className="font-bold text-xl text-gray-900 dark:text-white">
+        <img src={Logo} alt="Logo" className="w-2/1"/>
+      </div>
       <ul className="space-y-2 mt-4 px-4">
         {menu.map((item, idx) => {
           const isActive = location.pathname === item.to;
