@@ -37,7 +37,6 @@ const PageHeader = () => {
             <div className="flex justify-center">
               <img
                 src={chatIcon}
-                alt
                 className="md:-mb-10 -mb-4 h-full w-32"
               />
             </div>

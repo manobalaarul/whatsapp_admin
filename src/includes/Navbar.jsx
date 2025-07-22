@@ -114,23 +114,20 @@ const Navbar = ({ toggleSidebar, toggleDesktopSidebar }) => {
       {/* Right Section */}
       <div className="flex items-center space-x-2">
         {/* Notifications Button */}
-        <button 
+        {/* <button 
           className="group relative p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-all duration-200 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
           aria-label="Notifications"
         >
           <MdNotifications size={20} className="transition-transform duration-200 group-hover:animate-bounce"/>
           
-          {/* Notification Badge */}
           <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center font-bold animate-pulse">
             3
           </span>
-
-          {/* Tooltip */}
           <div className="absolute right-0 top-full mt-2 bg-gray-900 dark:bg-gray-700 text-white px-2 py-1 rounded text-xs font-medium opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap">
             Notifications
             <div className="absolute bottom-full right-2 w-2 h-2 bg-gray-900 dark:bg-gray-700 rotate-45 mb-1"></div>
           </div>
-        </button>
+        </button> */}
 
         {/* Profile Button */}
         <button 
