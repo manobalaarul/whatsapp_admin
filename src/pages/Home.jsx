@@ -4,7 +4,7 @@ import CountCard from '../components/home/CountCard'
 const Home = () => {
   return (
     <div>
-      <div class="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-12 gap-6">
         <CountCard/>
         <CountCard/>
         <CountCard/>
