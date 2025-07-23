@@ -8,6 +8,10 @@ const SummaryApi = {
     get_users:{
         url:"/get_users.php",
         method : "get"
+    },
+    send_message:{
+        url:"/send_messages/single_concept.php",
+        method : "post"
     }
 }
 

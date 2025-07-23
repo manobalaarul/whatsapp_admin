@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "./includes/Sidebar";
 import Navbar from "./includes/Navbar";
 import { Outlet } from "react-router-dom";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // for mobile
@@ -64,6 +66,7 @@ const App = () => {
 
   return (
     <div className="flex h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+      <ToastContainer />
       {/* Mobile Overlay with enhanced effects */}
       {isSidebarOpen && (
         <div 

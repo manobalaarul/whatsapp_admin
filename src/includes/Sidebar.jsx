@@ -1,11 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { MdChatBubble, MdHome, MdPerson, MdSettings, MdClose } from "react-icons/md";
+import { MdChatBubble, MdHome, MdPerson, MdSettings, MdClose, MdGroup } from "react-icons/md";
 import Logo from '../assets/images/logo/growsoon.jpg';
 
 const menu = [
   { icon: <MdHome size={20} />, label: "Home", to: "/" },
   { icon: <MdChatBubble size={20} />, label: "Chat", to: "/chat" },
+  { icon: <MdGroup size={20} />, label: "Bulk Message", to: "/bulk_message" },
   { icon: <MdPerson size={20} />, label: "Profile", to: "/profile" },
   { icon: <MdSettings size={20} />, label: "Settings", to: "/settings" },
 ];
