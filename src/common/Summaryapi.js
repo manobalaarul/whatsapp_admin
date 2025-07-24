@@ -9,8 +9,16 @@ const SummaryApi = {
         url:"/get_users.php",
         method : "get"
     },
+    get_templates:{
+        url:"/get_templates.php",
+        method : "get"
+    },
     send_message:{
         url:"/send_messages/single_concept.php",
+        method : "post"
+    },
+    send_template:{
+        url:"/send_messages/template_concept.php",
         method : "post"
     }
 }

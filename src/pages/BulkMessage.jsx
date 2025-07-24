@@ -89,13 +89,15 @@ const BulkMessage = () => {
                         </div>
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="px-5 py-2 bg-primary w-fit ml-auto text-white hover:text-black hover:dark:text-white rounded border border-primary hover:bg-transparent"
-                    >
-                        {loading ? 'Sending...' : 'Submit'}
-                    </button>
+                   <div className="flex justify-end">
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="px-6 py-2 bg-primary text-white hover:text-black hover:dark:text-white rounded border border-primary hover:bg-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                        >
+                            {loading ? 'Sending...' : 'Submit'}
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

@@ -7,6 +7,7 @@ import Auth from "../layouts/Auth";
 import Login from "../pages/auth/Login";
 import Chat from "../pages/Chat";
 import BulkMessage from "../pages/BulkMessage";
+import TemplateMessage from "../pages/TemplatesMessage";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
       {
         path: "bulk_message",
         element: <BulkMessage />,
+      },
+      {
+        path: "template_message",
+        element: <TemplateMessage />,
       },
     ],
   },{

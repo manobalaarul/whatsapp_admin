@@ -4,6 +4,7 @@ import Axios from "../../utils/axios";
 import SummaryApi, { baseUrl } from "../../common/Summaryapi";
 import userImage from '../../assets/images/icons/user.png';
 import ChatField from "./ChatField";
+import notiLogo from '../../assets/images/logo/noti_logo.png'
 
 const ChatLay = () => {
     const [activeUserId, setActiveUserId] = useState(1);
@@ -153,9 +154,6 @@ const ChatLay = () => {
                 });
                 setShouldScroll(true);
             }
-
-            // Show notification for incoming messages
-            showNotification(`New message from ${data.number}`, data.message);
         });
 
         setPusher(pusherInstance);
@@ -174,8 +172,8 @@ const ChatLay = () => {
         if (Notification.permission === 'granted') {
             new Notification(title, {
                 body: message.length > 50 ? message.substring(0, 50) + '...' : message,
-                icon: '/whatsapp-icon.png',
-                badge: '/whatsapp-icon.png',
+                icon: notiLogo,
+                badge: notiLogo,
                 tag: 'whatsapp-message',
             });
         }
@@ -552,7 +550,7 @@ const ChatLay = () => {
                                         messages.map((msg, index) => (
                                             <div
                                                 key={msg.id+index+"message" || index}
-                                                className={`flex ${msg.from === "me" ? "justify-end" : "justify-start"
+                                                className={`flex ${msg.from === "user" ? "justify-end" : "justify-start"
                                                 }`}
                                             >
                                                 <div className="flex flex-col max-w-xs lg:max-w-md">
