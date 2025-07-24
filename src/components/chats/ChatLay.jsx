@@ -106,13 +106,11 @@ const ChatLay = () => {
                 setShouldScroll(true);
             } else {
                 console.log('Message not for current active user:', {
-                    messageNumber: data.number,
+                    messageNumber: data.messageNumber,
                     activeUserClientId: currentActiveUser?.clientId
                 });
+                showNotification(getUserNameByNumber(data.messageNumber), data.message);
             }
-
-            // Show notification
-            showNotification(`Message sent to ${data.number}`, data.message);
         });
 
         // Listen for message-received events (incoming messages)
@@ -167,17 +165,80 @@ const ChatLay = () => {
             }
         };
     }, []); // Empty dependency array - initialize only once
+function getUserNameByNumber(number) {
+  const user = users.find(user => user.clientId === number);
+  return user ? user?.name : 'Unknown User';
+}
+
+
+   const currentNotificationRef = useRef(null);
+    const messageQueueRef = useRef([]);
 
     const showNotification = (title, message) => {
-        if (Notification.permission === 'granted') {
-            new Notification(title, {
-                body: message.length > 50 ? message.substring(0, 50) + '...' : message,
+        if (Notification.permission === 'granted' && document.hidden) {
+            // Add new message to queue
+            messageQueueRef.current.push({ title, message });
+            
+            // If there's an existing notification, close it
+            if (currentNotificationRef.current) {
+                currentNotificationRef.current.close();
+            }
+            
+            // Create notification body based on message count
+            let notificationBody;
+            if (messageQueueRef.current.length === 1) {
+                const msg = messageQueueRef.current[0].message;
+                notificationBody = msg.length > 50 ? msg.substring(0, 50) + '...' : msg;
+            } else {
+                const latestMsg = messageQueueRef.current[messageQueueRef.current.length - 1].message;
+                const truncatedMsg = latestMsg.length > 30 ? latestMsg.substring(0, 30) + '...' : latestMsg;
+                notificationBody = `${truncatedMsg} (+${messageQueueRef.current.length - 1} more messages)`;
+            }
+            
+            // Create new notification
+            currentNotificationRef.current = new Notification(title, {
+                body: notificationBody,
                 icon: notiLogo,
                 badge: notiLogo,
                 tag: 'whatsapp-message',
             });
+            
+            // Clear queue when notification is clicked
+            currentNotificationRef.current.onclick = () => {
+                messageQueueRef.current = [];
+                currentNotificationRef.current = null;
+                window.focus(); // Bring tab to focus
+            };
+            
+            // Clear reference when notification is closed
+            currentNotificationRef.current.onclose = () => {
+                currentNotificationRef.current = null;
+            };
         }
     };
+
+    // Clear message queue when tab becomes visible
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                messageQueueRef.current = [];
+                if (currentNotificationRef.current) {
+                    currentNotificationRef.current.close();
+                    currentNotificationRef.current = null;
+                }
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        // Cleanup on unmount
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            if (currentNotificationRef.current) {
+                currentNotificationRef.current.close();
+            }
+        };
+    }, []);
 
     // Request notification permission on component mount
     useEffect(() => {
