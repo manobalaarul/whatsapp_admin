@@ -14,21 +14,33 @@ const ChatLay = () => {
     const messagesEndRef = useRef(null);
     const [lastMessagesMap, setLastMessagesMap] = useState({});
     const [shouldScroll, setShouldScroll] = useState(false);
-    const [users, setusers] = useState([]);
+    const [users, setUsers] = useState([]);
     const eventSourceRef = useRef(null);
     const [lastTimestamp, setLastTimestamp] = useState(0);
     const [pusher, setPusher] = useState(null);
     const [connectionStatus, setConnectionStatus] = useState('disconnected');
+    
+    // Add ref to track current active user for Pusher callbacks
+    const activeUserRef = useRef(null);
+    const usersRef = useRef([]);
 
-    const activeUser = users.find((user) => user.id === activeUserId);
-
-    // Initialize Pusher
+    // Update refs when state changes
     useEffect(() => {
-        // Replace with your actual Pusher credentials
+        activeUserRef.current = users.find((user) => user.id === activeUserId);
+    }, [activeUserId, users]);
+
+    useEffect(() => {
+        usersRef.current = users;
+    }, [users]);
+
+    // Initialize Pusher ONCE - remove dependency array
+    useEffect(() => {
+        console.log('Initializing Pusher connection...');
+        
         const pusherInstance = new Pusher('eb66e29c078e486151c2', {
             cluster: 'ap2',
             encrypted: true,
-            authEndpoint: '/pusher/auth', // If you need authentication
+            authEndpoint: '/pusher/auth',
         });
 
         // Connection status tracking
@@ -54,37 +66,48 @@ const ChatLay = () => {
         channel.bind('message-sent', (data) => {
             console.log('New message sent via Pusher:', data);
             
-            // Only add to messages if it's for the currently active user
-            if (activeUser && data.number === activeUser.clientId) {
-                const newMsg = {
-                    id: data.db_id,
-                    from: "me",
+            const currentActiveUser = activeUserRef.current;
+            
+            // Create the new message object
+            const newMsg = {
+                id: data.db_id || Date.now(),
+                from: "me",
+                text: data.message,
+                timestamp: data.timestamp,
+                messageType: "reply",
+                admin: data.support_phone,
+                client: data.number,
+            };
+
+            // Always update last messages map
+            setLastMessagesMap(prev => ({
+                ...prev,
+                [data.number]: {
                     text: data.message,
                     timestamp: data.timestamp,
-                    messageType: "reply",
-                    admin: data.support_phone,
-                    client: data.number,
-                };
+                }
+            }));
 
+            // Add to current chat if it's for the active user
+            if (currentActiveUser && data.number === currentActiveUser.clientId) {
+                console.log('Adding sent message to current chat:', newMsg);
                 setMessages(prevMessages => {
                     // Check if message already exists to avoid duplicates
-                    const exists = prevMessages.some(msg => msg.id === data.db_id);
+                    const exists = prevMessages.some(msg => 
+                        (msg.id === data.db_id) || 
+                        (msg.text === data.message && Math.abs(msg.timestamp - data.timestamp) < 2)
+                    );
                     if (!exists) {
                         return [...prevMessages, newMsg];
                     }
                     return prevMessages;
                 });
-
-                // Update last message map
-                setLastMessagesMap(prev => ({
-                    ...prev,
-                    [data.number]: {
-                        text: data.message,
-                        timestamp: data.timestamp,
-                    }
-                }));
-
                 setShouldScroll(true);
+            } else {
+                console.log('Message not for current active user:', {
+                    messageNumber: data.number,
+                    activeUserClientId: currentActiveUser?.clientId
+                });
             }
 
             // Show notification
@@ -95,46 +118,40 @@ const ChatLay = () => {
         channel.bind('message-received', (data) => {
             console.log('New message received via Pusher:', data);
             
-            // Only add to messages if it's for the currently active user
-            if (activeUser && data.number === activeUser.clientId) {
-                const newMsg = {
-                    id: data.db_id || Date.now(),
-                    from: "user",
+            const currentActiveUser = activeUserRef.current;
+            
+            const newMsg = {
+                id: data.db_id || Date.now(),
+                from: "user",
+                text: data.message,
+                timestamp: data.timestamp,
+                messageType: "incoming",
+                admin: data.support_phone,
+                client: data.number,
+            };
+
+            // Always update last messages map
+            setLastMessagesMap(prev => ({
+                ...prev,
+                [data.number]: {
                     text: data.message,
                     timestamp: data.timestamp,
-                    messageType: "incoming",
-                    admin: data.support_phone,
-                    client: data.number,
-                };
+                }
+            }));
 
+            // Add to current chat if it's for the active user
+            if (currentActiveUser && data.number === currentActiveUser.clientId) {
                 setMessages(prevMessages => {
-                    // Check if message already exists to avoid duplicates
-                    const exists = prevMessages.some(msg => msg.id === newMsg.id);
+                    const exists = prevMessages.some(msg => 
+                        (msg.id === data.db_id) || 
+                        (msg.text === data.message && Math.abs(msg.timestamp - data.timestamp) < 2)
+                    );
                     if (!exists) {
                         return [...prevMessages, newMsg];
                     }
                     return prevMessages;
                 });
-
-                // Update last message map
-                setLastMessagesMap(prev => ({
-                    ...prev,
-                    [data.number]: {
-                        text: data.message,
-                        timestamp: data.timestamp,
-                    }
-                }));
-
                 setShouldScroll(true);
-            } else {
-                // Update last message for other users in sidebar
-                setLastMessagesMap(prev => ({
-                    ...prev,
-                    [data.number]: {
-                        text: data.message,
-                        timestamp: data.timestamp,
-                    }
-                }));
             }
 
             // Show notification for incoming messages
@@ -143,23 +160,23 @@ const ChatLay = () => {
 
         setPusher(pusherInstance);
 
-        // Cleanup on component unmount
+        // Cleanup on component unmount only
         return () => {
+            console.log('Cleaning up Pusher connection...');
             if (pusherInstance) {
                 pusherInstance.unsubscribe('whatsapp-channel');
                 pusherInstance.disconnect();
             }
         };
-    }, [activeUser?.clientId]); // Re-initialize when active user changes
+    }, []); // Empty dependency array - initialize only once
 
     const showNotification = (title, message) => {
-        // Simple notification - you can use a proper notification library
         if (Notification.permission === 'granted') {
             new Notification(title, {
                 body: message.length > 50 ? message.substring(0, 50) + '...' : message,
                 icon: '/whatsapp-icon.png',
                 badge: '/whatsapp-icon.png',
-                tag: 'whatsapp-message', // Prevents multiple notifications
+                tag: 'whatsapp-message',
             });
         }
     };
@@ -182,13 +199,6 @@ const ChatLay = () => {
         };
     }, []);
 
-    // Connect SSE when active user changes
-    useEffect(() => {
-        if (activeUser && activeUser.clientId) {
-            // Your existing SSE logic can stay here if needed
-        }
-    }, [activeUser?.clientId]);
-
     const scrollToBottom = (smooth = true) => {
         messagesEndRef.current?.scrollIntoView({
             behavior: smooth ? "smooth" : "instant",
@@ -205,6 +215,7 @@ const ChatLay = () => {
     }, [messages, shouldScroll, loading]);
 
     const handleUserSelect = (userId) => {
+        console.log('Selecting user:', userId);
         setActiveUserId(userId);
         setSidebarOpen(false);
         
@@ -234,7 +245,7 @@ const ChatLay = () => {
                     admin: user.admin,
                 }));
 
-                setusers(mappedUsers);
+                setUsers(mappedUsers);
 
                 if (mappedUsers.length > 0) {
                     setActiveUserId(mappedUsers[0].id);
@@ -250,6 +261,7 @@ const ChatLay = () => {
 
     const getMessages = async (clientId = "919500971102") => {
         try {
+            console.log('Loading messages for client:', clientId);
             setLoading(true);
             const response = await Axios({
                 ...SummaryApi.get_messages,
@@ -283,7 +295,6 @@ const ChatLay = () => {
                         },
                     }));
                     
-                    // Set last timestamp for SSE
                     const lastMsg = response.data.data[response.data.data.length - 1];
                     setLastTimestamp(lastMsg.realtime || lastMsg.timestamp);
                 }
@@ -306,12 +317,19 @@ const ChatLay = () => {
     }, []);
 
     const handleSendMessage = async () => {
-        if (!newMessage.trim() || !activeUser) return;
+        if (!newMessage.trim()) return;
+        
+        const currentActiveUser = users.find((user) => user.id === activeUserId);
+        if (!currentActiveUser) {
+            console.error('No active user found');
+            return;
+        }
+
+        console.log('Sending message:', newMessage, 'to:', currentActiveUser.clientId);
 
         try {
-            // Send message to your API
             const formData = new FormData();
-            formData.append("number", activeUser.clientId);
+            formData.append("number", currentActiveUser.clientId);
             formData.append("message", newMessage);
             
             const response = await Axios({
@@ -319,12 +337,25 @@ const ChatLay = () => {
                 data: formData
             });
 
+            console.log('Send message response:', response.data);
+
             if (response.data.status === "success") {
                 setNewMessage("");
-                // Message will be added via Pusher event, no need to add manually
+                // Message will be added via Pusher event
+                console.log('Message sent successfully, waiting for Pusher event...');
             } else {
-                // Handle error
                 console.error("Message send failed:", response.data);
+                // Fallback: add message locally
+                const newMsg = {
+                    id: Date.now().toString(),
+                    from: "me",
+                    text: newMessage,
+                    timestamp: Math.floor(Date.now() / 1000),
+                    messageType: "reply",
+                };
+                setMessages((prev) => [...prev, newMsg]);
+                setShouldScroll(true);
+                setNewMessage("");
             }
         } catch (error) {
             console.error("Error sending message:", error);
@@ -349,6 +380,8 @@ const ChatLay = () => {
             handleSendMessage();
         }
     };
+
+    const activeUser = users.find((user) => user.id === activeUserId);
 
     return (
         <div>
