@@ -4,12 +4,23 @@ import { MdChatBubble, MdHome, MdPerson, MdSettings, MdClose, MdGroup } from "re
 import Logo from '../assets/images/logo/growsoon.jpg';
 
 const menu = [
-  { icon: <MdHome size={20} />, label: "Home", to: "/" },
-  { icon: <MdChatBubble size={20} />, label: "Chat", to: "/chat" },
-  { icon: <MdGroup size={20} />, label: "Bulk Message", to: "/bulk_message" },
-  { icon: <MdPerson size={20} />, label: "Profile", to: "/profile" },
-  { icon: <MdSettings size={20} />, label: "Settings", to: "/settings" },
+  {
+    title: "Main",
+    items: [
+      { icon: <MdHome size={20} />, label: "Home", to: "/" },
+      { icon: <MdChatBubble size={20} />, label: "Chat", to: "/chat" },
+      { icon: <MdGroup size={20} />, label: "Bulk Message", to: "/bulk_message" },
+    ],
+  },
+  {
+    title: "Account",
+    items: [
+      { icon: <MdPerson size={20} />, label: "Profile", to: "/profile" },
+      { icon: <MdSettings size={20} />, label: "Settings", to: "/settings" },
+    ],
+  },
 ];
+
 
 const Sidebar = ({ isSidebarOpen, closeSidebar, isSidebarExpanded }) => {
   const location = useLocation();
@@ -52,39 +63,29 @@ const Sidebar = ({ isSidebarOpen, closeSidebar, isSidebarExpanded }) => {
           </div>
           
           {/* Navigation Menu */}
-          <ul className="space-y-2 px-3 flex-1 py-4">
-            {menu.map((item, idx) => {
-              const isActive = location.pathname === item.to;
-              return (
-                <Link to={item.to} key={idx}>
-                  <li
-                    className={`group flex items-center space-x-3 px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 transform hover:scale-105 hover:shadow-md ${
-                      isActive 
-                        ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg" 
-                        : "text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-50 dark:hover:from-gray-700 dark:hover:to-gray-600 hover:text-blue-600 dark:hover:text-blue-400"
-                    }`}
-                  >
-                    <div className={`flex-shrink-0 transition-all duration-200 ${
-                      isActive ? "text-white" : "group-hover:scale-110"
-                    }`}>
-                      {item.icon}
-                    </div>
-                    {isExpanded && (
-                      <span className="whitespace-nowrap font-medium transition-all duration-200 opacity-100">
-                        {item.label}
-                      </span>
-                    )}
-                    {!isExpanded && (
-                      <div className="absolute left-20 bg-gray-900 dark:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-medium opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 shadow-lg">
-                        {item.label}
-                        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900 dark:bg-gray-700 rotate-45"></div>
-                      </div>
-                    )}
-                  </li>
-                </Link>
-              );
-            })}
-          </ul>
+          <ul className="space-y-3 p-4 flex-1">
+  {menu.map((section, sectionIndex) => (
+    <div key={sectionIndex}>
+      <div className="text-xs uppercase text-gray-500 dark:text-gray-400 font-semibold px-2 py-2 tracking-wide">
+        {section.title}
+      </div>
+      {section.items.map((item, idx) => {
+        const isActive = location.pathname === item.to;
+        return (
+          <Link to={item.to} key={idx} onClick={handleMenuClick}>
+            <li className={`group flex items-center space-x-4 px-4 py-4 rounded-lg cursor-pointer transition-all duration-200 transform hover:scale-105 hover:shadow-lg ${isActive ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg" : "text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-50 dark:hover:from-gray-700 dark:hover:to-gray-600 hover:text-blue-600 dark:hover:text-blue-400"}`}>
+              <div className={`transition-all duration-200 ${isActive ? "text-white" : "group-hover:scale-110"}`}>
+                {item.icon}
+              </div>
+              <span className="font-medium">{item.label}</span>
+            </li>
+          </Link>
+        );
+      })}
+    </div>
+  ))}
+</ul>
+
 
           {/* Footer Section */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
