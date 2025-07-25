@@ -58,6 +58,9 @@ const router = createBrowserRouter([
         element: <Login />
       }
     ]
+  },
+  {
+    basename: "/whatsapp_admin"
   }
 
 ]);
