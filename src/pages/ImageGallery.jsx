@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from 'react'
 import PageHeader from '../components/utils/PageHeader'
 import SummaryApi from '../common/Summaryapi';
 import Axios from '../utils/axios';
+import ConfirmBox from '../components/design/ConfirmBox';
+import { toast } from 'react-toastify';
 
 const ImageGallery = () => {
     const [loading, setLoading] = useState(false);
@@ -10,6 +12,9 @@ const ImageGallery = () => {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
     const fileInputRef = useRef();
+    const [showConfirmBox, setShowConfirmBox] = useState(false);
+    const [targetImageId, setTargetImageId] = useState(null);
+
 
     // Fetch images from backend
     const getImages = async () => {
@@ -72,7 +77,7 @@ const ImageGallery = () => {
             });
 
             if (response.data.success) {
-                alert('Images uploaded successfully!');
+                toast.success('Images uploaded successfully!');
                 setSelectedFiles([]);
                 setPreviewUrls([]);
                 if (fileInputRef.current) {
@@ -82,7 +87,7 @@ const ImageGallery = () => {
             }
         } catch (error) {
             console.error("Error uploading images:", error);
-            alert('Error uploading images. Please try again.');
+            toast.error('Error uploading images. Please try again.');
         } finally {
             setUploading(false);
         }
@@ -90,18 +95,14 @@ const ImageGallery = () => {
 
     // Delete image
     const deleteImage = async (imageId) => {
-        if (!window.confirm('Are you sure you want to delete this image?')) {
-            return;
-        }
-
         try {
             const response = await Axios({
-                ...SummaryApi.delete_image, // You'll need to add this to your SummaryApi
+                ...SummaryApi.delete_image,
                 data: { imageId }
             });
 
             if (response.data.success) {
-                alert('Image deleted successfully!');
+                toast.success("Image deleted successfully");
                 getImages(); // Refresh the gallery
             }
         } catch (error) {
@@ -109,6 +110,13 @@ const ImageGallery = () => {
             alert('Error deleting image. Please try again.');
         }
     };
+
+    const handleDeleteClick = (imageId) => {
+            setTargetImageId(imageId);
+            setShowConfirmBox(true);
+        };
+
+
 
     // Clear selection
     const clearSelection = () => {
@@ -182,7 +190,7 @@ const ImageGallery = () => {
                             {previewUrls.map((url, index) => (
                                 <div key={index} className="relative">
                                     <img
-                                        src={`https://growsooninfotech.com/webhook/api/${url}`}
+                                        src={url}
                                         alt={`Preview ${index + 1}`}
                                         className="w-full h-24 object-cover rounded border"
                                     />
@@ -200,7 +208,7 @@ const ImageGallery = () => {
             </div>
 
             {/* Gallery Section */}
-            <div className="bg-white border p-4 dark:bg-darkinfo text-gray-900 dark:text-white rounded-lg overflow-hidden h-[calc(100vh-400px)]">
+            <div className="bg-white border p-4 dark:bg-darkinfo text-gray-900 dark:text-white rounded-lg overflow-hidden">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold">Gallery ({images.length} images)</h3>
                     <button
@@ -244,7 +252,7 @@ const ImageGallery = () => {
                                                 View
                                             </button>
                                             <button
-                                                onClick={() => deleteImage(image._id || image.id)}
+                                                onClick={() => handleDeleteClick(image.id)}
                                                 className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700"
                                             >
                                                 Delete
@@ -271,6 +279,17 @@ const ImageGallery = () => {
                     </div>
                 )}
             </div>
+            {showConfirmBox && (
+  <ConfirmBox
+    close={() => setShowConfirmBox(false)}
+    cancel={() => setShowConfirmBox(false)}
+    confirm={() => {
+      deleteImage(targetImageId);
+      setShowConfirmBox(false);
+    }}
+  />
+)}
+
         </div>
     )
 }

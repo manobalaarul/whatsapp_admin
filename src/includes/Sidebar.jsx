@@ -16,7 +16,6 @@ const menu = [
     title: "Gallery",
     items: [
       { icon: <MdImage size={20} />, label: "Images", to: "/image_gallery" },
-      { icon: <MdVideoCall size={20} />, label: "Videos", to: "/video_gallery" }
     ],
   },
   {

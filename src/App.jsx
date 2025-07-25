@@ -95,7 +95,7 @@ const App = () => {
         {/* Main Content Area */}
         <main className="p-2 flex-1 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 overflow-auto transition-all duration-300">
           {/* Content Container with hover effects */}
-          <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden">
+           <div className="min-h-[calc(100vh-4rem)] bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-visible">
             {/* Content Header Bar */}
             {/* <div className="h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div> */}
             

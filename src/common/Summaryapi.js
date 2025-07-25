@@ -28,6 +28,10 @@ const SummaryApi = {
     upload_images:{
         url:"/images.php/images/upload",
         method : "post"
+    },
+    delete_image:{
+        url:"/images.php/images/delete",
+        method : "delete"
     }
 }
 

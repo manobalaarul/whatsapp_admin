@@ -5,6 +5,7 @@ import SummaryApi, { baseUrl } from "../../common/Summaryapi";
 import userImage from '../../assets/images/icons/user.png';
 import ChatField from "./ChatField";
 import notiLogo from '../../assets/images/logo/noti_logo.png'
+import { toast } from "react-toastify";
 
 const ChatLay = () => {
     const [activeUserId, setActiveUserId] = useState(1);
@@ -442,6 +443,36 @@ function getUserNameByNumber(number) {
 
     const activeUser = users.find((user) => user.id === activeUserId);
 
+    const sendTemplete = async (template,lang) => {
+        try {
+                const formData = new FormData();
+                formData.append("number", activeUser.clientId);
+                formData.append("template", template);
+                formData.append("lang", lang);
+
+                const response = await Axios({
+                    ...SummaryApi.send_template,
+                    data: formData
+                });
+                console.log(response.data);
+                
+                if (response.data.status === "success") {
+                    console.log(`Sent to ${activeUser.name}:`, response.data);
+                    toast.success(`Template sent to ${activeUser.name}`, { autoClose: 2000 });
+            setLoading(false);
+
+                } else {
+                    console.warn(`Failed to send to ${activeUser.name}:`, response.data);
+                    toast.error(`Failed to send to ${activeUser.name}`, { autoClose: 3000 });
+                }
+        } catch (error) {
+            console.error('❌ Error while sending message:', error);
+            toast.error('Error while sending messages', { autoClose: 3000 });
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div>
             <div className="bg-white border dark:bg-darkinfo text-gray-900 dark:text-white rounded-lg overflow-hidden h-[calc(100vh-200px)]">
@@ -590,15 +621,6 @@ function getUserNameByNumber(number) {
                                         >
                                             🔄
                                         </button>
-                                        <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
-                                            📞
-                                        </button>
-                                        <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
-                                            📹
-                                        </button>
-                                        <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
-                                            ⋮
-                                        </button>
                                     </div>
                                 </div>
 
@@ -651,6 +673,7 @@ function getUserNameByNumber(number) {
                                     newMessage={newMessage} 
                                     setNewMessage={setNewMessage} 
                                     handleKeyPress={handleKeyPress}
+                                    sendTemplate={sendTemplete}
                                 />
                             </>
                         ) : (
