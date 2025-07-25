@@ -20,6 +20,14 @@ const SummaryApi = {
     send_template:{
         url:"/send_messages/template_concept.php",
         method : "post"
+    },
+    get_images:{
+        url:"/images.php/images",
+        method : "get"
+    },
+    upload_images:{
+        url:"/images.php/images/upload",
+        method : "post"
     }
 }
 

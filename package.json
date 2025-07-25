@@ -11,6 +11,10 @@
   },
   "dependencies": {
     "axios": "^1.10.0",
+    "datatables.net-dt": "^2.3.2",
+    "datatables.net-react": "^1.0.1",
+    "datatables.net-responsive-dt": "^3.0.5",
+    "datatables.net-select-dt": "^3.0.1",
     "pusher-js": "^8.4.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

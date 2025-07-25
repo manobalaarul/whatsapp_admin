@@ -8,6 +8,8 @@ import Login from "../pages/auth/Login";
 import Chat from "../pages/Chat";
 import BulkMessage from "../pages/BulkMessage";
 import TemplateMessage from "../pages/TemplatesMessage";
+import Users from "../pages/Users";
+import ImageGallery from "../pages/ImageGallery";
 
 const router = createBrowserRouter([
   {
@@ -38,18 +40,26 @@ const router = createBrowserRouter([
         path: "template_message",
         element: <TemplateMessage />,
       },
-    ],
-  },{
-     path: "/auth",
-    element: <Auth />,
-    children:[
       {
-        path:"login",
-        element: <Login/>
+        path: "users",
+        element: <Users />,
+      },
+      {
+        path: "image_gallery",
+        element: <ImageGallery />,
+      },
+    ],
+  }, {
+    path: "/auth",
+    element: <Auth />,
+    children: [
+      {
+        path: "login",
+        element: <Login />
       }
     ]
   }
- 
+
 ]);
 
 export default router;
