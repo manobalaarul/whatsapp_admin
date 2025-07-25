@@ -11,58 +11,60 @@ import TemplateMessage from "../pages/TemplatesMessage";
 import Users from "../pages/Users";
 import ImageGallery from "../pages/ImageGallery";
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <App />,
+      children: [
+        {
+          path: "",
+          element: <Home />,
+        },
+        {
+          path: "chat",
+          element: <Chat />,
+        },
+        {
+          path: "profile",
+          element: <Profile />,
+        },
+        {
+          path: "settings",
+          element: <Settings />,
+        },
+        {
+          path: "bulk_message",
+          element: <BulkMessage />,
+        },
+        {
+          path: "template_message",
+          element: <TemplateMessage />,
+        },
+        {
+          path: "users",
+          element: <Users />,
+        },
+        {
+          path: "image_gallery",
+          element: <ImageGallery />,
+        },
+      ],
+    },
+    {
+      path: "/auth",
+      element: <Auth />,
+      children: [
+        {
+          path: "login",
+          element: <Login />,
+        },
+      ],
+    },
+  ],
   {
-    path: "/",
-    element: <App />,
-    children: [
-      {
-        path: "",
-        element: <Home />,
-      },
-      {
-        path: "chat",
-        element: <Chat />,
-      },
-      {
-        path: "profile",
-        element: <Profile />,
-      },
-      {
-        path: "settings",
-        element: <Settings />,
-      },
-      {
-        path: "bulk_message",
-        element: <BulkMessage />,
-      },
-      {
-        path: "template_message",
-        element: <TemplateMessage />,
-      },
-      {
-        path: "users",
-        element: <Users />,
-      },
-      {
-        path: "image_gallery",
-        element: <ImageGallery />,
-      },
-    ],
-  }, {
-    path: "/auth",
-    element: <Auth />,
-    children: [
-      {
-        path: "login",
-        element: <Login />
-      }
-    ]
-  },
-  {
-    basename: "/whatsapp_admin"
+    basename: "/whatsapp_admin",
   }
-
-]);
+);
 
 export default router;
