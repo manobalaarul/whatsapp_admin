@@ -552,7 +552,7 @@ const ChatLay = () => {
                                         className="w-12 h-12 rounded-full"
                                     />
                                     <span className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white dark:border-darkinfo ${connectionStatus === 'connected' ? 'bg-green-500' :
-                                            connectionStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
+                                        connectionStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
                                         }`}></span>
                                 </div>
                                 <div>
@@ -646,7 +646,7 @@ const ChatLay = () => {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <div className={`w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' :
-                                                connectionStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
+                                            connectionStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
                                             }`} title={`Connection: ${connectionStatus}`}></div>
                                         <button
                                             onClick={() => getMessages(activeUser.clientId)}
@@ -672,12 +672,21 @@ const ChatLay = () => {
                                             >
                                                 <div className="flex flex-col max-w-xs lg:max-w-md">
                                                     <div
-                                                        className={`px-4 py-2 rounded-2xl text-sm ${msg.from === "me"
-                                                            ? "bg-blue-500 text-white rounded-br-md"
-                                                            : "bg-white dark:bg-[#3a3b4d] text-gray-800 dark:text-gray-200 border dark:border-gray-600 rounded-bl-md"
+                                                        className={`${msg.text.startsWith("https://growsooninfotech.com/webhook/api/uploads/images") ? "px-1 rounded py-1" : "px-4 rounded-2xl py-2"}   text-sm ${msg.from === "me"
+                                                            ? "bg-white text-gray-800 rounded-br-md"
+                                                            : "bg-blue-500 dark:bg-[#3a3b4d] text-white dark:text-gray-200 border dark:border-gray-600 rounded-bl-md"
                                                             }`}
                                                     >
-                                                        {msg.text}
+                                                        {msg.text.startsWith("https://growsooninfotech.com/webhook/api/uploads/images") ? (
+                                                            <img
+                                                                src={msg.text}
+                                                                alt="Uploaded"
+                                                                className="w-48 object-cover rounded"
+                                                            />
+                                                        ) : (
+                                                            <p>{msg.text}</p>
+                                                        )}
+
                                                     </div>
                                                     <div
                                                         className={`text-xs text-gray-400 mt-1 ${msg.from === "me" ? "text-right" : "text-left"
