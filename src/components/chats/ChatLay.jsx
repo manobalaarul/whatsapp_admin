@@ -658,7 +658,7 @@ const ChatLay = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex-1 scrollbar-none overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-[#2b2b3d]">
+                                <div className="flex-1 scrollbar-none overflow-y-auto p-4 space-y-4 bg-gray-100 dark:bg-[#2b2b3d]">
                                     {loading ? (
                                         <div className="flex justify-center items-center h-full">
                                             <div className="text-gray-500">Loading messages...</div>
@@ -672,12 +672,13 @@ const ChatLay = () => {
                                             >
                                                 <div className="flex flex-col max-w-xs lg:max-w-md">
                                                     <div
-                                                        className={`${msg.text.startsWith("https://growsooninfotech.com/webhook/api/uploads/images") ? "px-1 rounded py-1" : "px-4 rounded-2xl py-2"}   text-sm ${msg.from === "me"
-                                                            ? "bg-white text-gray-800 rounded-br-md"
-                                                            : "bg-blue-500 dark:bg-[#3a3b4d] text-white dark:text-gray-200 border dark:border-gray-600 rounded-bl-md"
+                                                        className={`${msg.text.endsWith(".jpg") ? "px-1 rounded py-1" : "px-4 rounded-2xl py-2"} text-sm 
+    ${msg.from === "me"
+                                                                ? "bg-white text-gray-800 rounded-br-md"
+                                                                : "bg-blue-500 dark:bg-[#3a3b4d] text-white dark:text-gray-200 border dark:border-gray-600 rounded-bl-md"
                                                             }`}
                                                     >
-                                                        {msg.text.startsWith("https://growsooninfotech.com/webhook/api/uploads/images") ? (
+                                                        {msg.text.endsWith(".jpg") ? (
                                                             <img
                                                                 src={msg.text}
                                                                 alt="Uploaded"
@@ -686,10 +687,10 @@ const ChatLay = () => {
                                                         ) : (
                                                             <p>{msg.text}</p>
                                                         )}
-
                                                     </div>
+
                                                     <div
-                                                        className={`text-xs text-gray-400 mt-1 ${msg.from === "me" ? "text-right" : "text-left"
+                                                        className={`text-xs text-gray-400 mt-1 ${msg.from === "me" ? "text-left" : "text-right"
                                                             }`}
                                                     >
                                                         {new Date(msg.timestamp * 1000).toLocaleTimeString(
