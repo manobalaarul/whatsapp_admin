@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { MdImage, MdOutlineRampLeft, MdSnippetFolder } from 'react-icons/md';
 import ShowImageGallery from './ShowImageGallery';
 
-const ChatField = ({ handleSendMessage, setNewMessage, newMessage, handleKeyPress,sendTemplate }) => {
+const ChatField = ({ handleSendMessage, setNewMessage, newMessage, handleKeyPress,sendTemplate,sendImage }) => {
   const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
   const [showAttachment, setShowAttachment] = useState(false);
   const [showImageGallery, setShowImageGallery] = useState(false);
@@ -115,7 +115,7 @@ const ChatField = ({ handleSendMessage, setNewMessage, newMessage, handleKeyPres
           Send
         </button>
       </div>
-      {showImageGallery && <ShowImageGallery setShowImageGallery={setShowImageGallery} setShowAttachment={setShowAttachment}/>}
+      {showImageGallery && <ShowImageGallery setShowImageGallery={setShowImageGallery} setShowAttachment={setShowAttachment} sendImage={sendImage}/>}
     </div>
   );
 };

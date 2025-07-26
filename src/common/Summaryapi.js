@@ -32,6 +32,10 @@ const SummaryApi = {
     delete_image:{
         url:"/images.php/images/delete",
         method : "delete"
+    },
+    send_image:{
+        url:"/send_messages/file_concept.php",
+        method : "post"
     }
 }
 

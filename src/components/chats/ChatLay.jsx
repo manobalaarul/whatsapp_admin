@@ -21,7 +21,7 @@ const ChatLay = () => {
     const [lastTimestamp, setLastTimestamp] = useState(0);
     const [pusher, setPusher] = useState(null);
     const [connectionStatus, setConnectionStatus] = useState('disconnected');
-    
+
     // Add ref to track current active user for Pusher callbacks
     const activeUserRef = useRef(null);
     const usersRef = useRef([]);
@@ -38,7 +38,7 @@ const ChatLay = () => {
     // Initialize Pusher ONCE - remove dependency array
     useEffect(() => {
         console.log('Initializing Pusher connection...');
-        
+
         const pusherInstance = new Pusher('eb66e29c078e486151c2', {
             cluster: 'ap2',
             encrypted: true,
@@ -67,9 +67,9 @@ const ChatLay = () => {
         // Listen for message-sent events (outgoing messages)
         channel.bind('message-sent', (data) => {
             console.log('New message sent via Pusher:', data);
-            
+
             const currentActiveUser = activeUserRef.current;
-            
+
             // Create the new message object
             const newMsg = {
                 id: data.db_id || Date.now(),
@@ -95,8 +95,8 @@ const ChatLay = () => {
                 console.log('Adding sent message to current chat:', newMsg);
                 setMessages(prevMessages => {
                     // Check if message already exists to avoid duplicates
-                    const exists = prevMessages.some(msg => 
-                        (msg.id === data.db_id) || 
+                    const exists = prevMessages.some(msg =>
+                        (msg.id === data.db_id) ||
                         (msg.text === data.message && Math.abs(msg.timestamp - data.timestamp) < 2)
                     );
                     if (!exists) {
@@ -117,9 +117,9 @@ const ChatLay = () => {
         // Listen for message-received events (incoming messages)
         channel.bind('message-received', (data) => {
             console.log('New message received via Pusher:', data);
-            
+
             const currentActiveUser = activeUserRef.current;
-            
+
             const newMsg = {
                 id: data.db_id || Date.now(),
                 from: "user",
@@ -142,8 +142,8 @@ const ChatLay = () => {
             // Add to current chat if it's for the active user
             if (currentActiveUser && data.number === currentActiveUser.clientId) {
                 setMessages(prevMessages => {
-                    const exists = prevMessages.some(msg => 
-                        (msg.id === data.db_id) || 
+                    const exists = prevMessages.some(msg =>
+                        (msg.id === data.db_id) ||
                         (msg.text === data.message && Math.abs(msg.timestamp - data.timestamp) < 2)
                     );
                     if (!exists) {
@@ -166,25 +166,25 @@ const ChatLay = () => {
             }
         };
     }, []); // Empty dependency array - initialize only once
-function getUserNameByNumber(number) {
-  const user = users.find(user => user.clientId === number);
-  return user ? user?.name : 'Unknown User';
-}
+    function getUserNameByNumber(number) {
+        const user = users.find(user => user.clientId === number);
+        return user ? user?.name : 'Unknown User';
+    }
 
 
-   const currentNotificationRef = useRef(null);
+    const currentNotificationRef = useRef(null);
     const messageQueueRef = useRef([]);
 
     const showNotification = (title, message) => {
         if (Notification.permission === 'granted' && document.hidden) {
             // Add new message to queue
             messageQueueRef.current.push({ title, message });
-            
+
             // If there's an existing notification, close it
             if (currentNotificationRef.current) {
                 currentNotificationRef.current.close();
             }
-            
+
             // Create notification body based on message count
             let notificationBody;
             if (messageQueueRef.current.length === 1) {
@@ -195,7 +195,7 @@ function getUserNameByNumber(number) {
                 const truncatedMsg = latestMsg.length > 30 ? latestMsg.substring(0, 30) + '...' : latestMsg;
                 notificationBody = `${truncatedMsg} (+${messageQueueRef.current.length - 1} more messages)`;
             }
-            
+
             // Create new notification
             currentNotificationRef.current = new Notification(title, {
                 body: notificationBody,
@@ -203,14 +203,14 @@ function getUserNameByNumber(number) {
                 badge: notiLogo,
                 tag: 'whatsapp-message',
             });
-            
+
             // Clear queue when notification is clicked
             currentNotificationRef.current.onclick = () => {
                 messageQueueRef.current = [];
                 currentNotificationRef.current = null;
                 window.focus(); // Bring tab to focus
             };
-            
+
             // Clear reference when notification is closed
             currentNotificationRef.current.onclose = () => {
                 currentNotificationRef.current = null;
@@ -278,7 +278,7 @@ function getUserNameByNumber(number) {
         console.log('Selecting user:', userId);
         setActiveUserId(userId);
         setSidebarOpen(false);
-        
+
         if (userId) {
             const user = users.find((u) => u.id === userId);
             if (user) {
@@ -354,7 +354,7 @@ function getUserNameByNumber(number) {
                             timestamp: last.timestamp,
                         },
                     }));
-                    
+
                     const lastMsg = response.data.data[response.data.data.length - 1];
                     setLastTimestamp(lastMsg.realtime || lastMsg.timestamp);
                 }
@@ -378,7 +378,7 @@ function getUserNameByNumber(number) {
 
     const handleSendMessage = async () => {
         if (!newMessage.trim()) return;
-        
+
         const currentActiveUser = users.find((user) => user.id === activeUserId);
         if (!currentActiveUser) {
             console.error('No active user found');
@@ -391,7 +391,7 @@ function getUserNameByNumber(number) {
             const formData = new FormData();
             formData.append("number", currentActiveUser.clientId);
             formData.append("message", newMessage);
-            
+
             const response = await Axios({
                 ...SummaryApi.send_message,
                 data: formData
@@ -419,7 +419,7 @@ function getUserNameByNumber(number) {
             }
         } catch (error) {
             console.error("Error sending message:", error);
-            
+
             // Fallback: add message locally if API fails
             const newMsg = {
                 id: Date.now().toString(),
@@ -443,28 +443,64 @@ function getUserNameByNumber(number) {
 
     const activeUser = users.find((user) => user.id === activeUserId);
 
-    const sendTemplete = async (template,lang) => {
+    const sendTemplete = async (template, lang) => {
         try {
-                const formData = new FormData();
-                formData.append("number", activeUser.clientId);
-                formData.append("template", template);
-                formData.append("lang", lang);
+            const formData = new FormData();
+            formData.append("number", activeUser.clientId);
+            formData.append("template", template);
+            formData.append("lang", lang);
 
-                const response = await Axios({
-                    ...SummaryApi.send_template,
-                    data: formData
-                });
-                console.log(response.data);
-                
-                if (response.data.status === "success") {
-                    console.log(`Sent to ${activeUser.name}:`, response.data);
-                    toast.success(`Template sent to ${activeUser.name}`, { autoClose: 2000 });
+            const response = await Axios({
+                ...SummaryApi.send_template,
+                data: formData
+            });
+            console.log(response.data);
+
+            if (response.data.status === "success") {
+                console.log(`Sent to ${activeUser.name}:`, response.data);
+                toast.success(`Template sent to ${activeUser.name}`, { autoClose: 2000 });
+                setLoading(false);
+
+            } else {
+                console.warn(`Failed to send to ${activeUser.name}:`, response.data);
+                toast.error(`Failed to send to ${activeUser.name}`, { autoClose: 3000 });
+            }
+        } catch (error) {
+            console.error('❌ Error while sending message:', error);
+            toast.error('Error while sending messages', { autoClose: 3000 });
+        } finally {
             setLoading(false);
+        }
+    };
 
-                } else {
-                    console.warn(`Failed to send to ${activeUser.name}:`, response.data);
-                    toast.error(`Failed to send to ${activeUser.name}`, { autoClose: 3000 });
-                }
+    const sendImage = async (files) => {
+        try {
+            const formData = new FormData();
+            formData.append("number", activeUser.clientId);
+            if (Array.isArray(files)) {
+                files.forEach((file, index) => {
+                    formData.append("files[]", file);  // Important: use "files[]" to denote an array
+                });
+            } else {
+                formData.append("files[]", files); // fallback for single file
+            }
+            formData.append("type", 'image');
+
+            const response = await Axios({
+                ...SummaryApi.send_image,
+                data: formData
+            });
+            console.log(response.data);
+
+            if (response.data.status === "success") {
+                console.log(`Images to ${activeUser.name}:`, response.data);
+                toast.success(`Images sent to ${activeUser.name}`, { autoClose: 2000 });
+                setLoading(false);
+
+            } else {
+                console.warn(`Failed to send to ${activeUser.name}:`, response.data);
+                toast.error(`Failed to send to ${activeUser.name}`, { autoClose: 3000 });
+            }
         } catch (error) {
             console.error('❌ Error while sending message:', error);
             toast.error('Error while sending messages', { autoClose: 3000 });
@@ -515,10 +551,9 @@ function getUserNameByNumber(number) {
                                         alt="user"
                                         className="w-12 h-12 rounded-full"
                                     />
-                                    <span className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white dark:border-darkinfo ${
-                                        connectionStatus === 'connected' ? 'bg-green-500' : 
-                                        connectionStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
-                                    }`}></span>
+                                    <span className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white dark:border-darkinfo ${connectionStatus === 'connected' ? 'bg-green-500' :
+                                            connectionStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
+                                        }`}></span>
                                 </div>
                                 <div>
                                     <h6 className="text-sm font-semibold">Growsoon Infotech</h6>
@@ -558,7 +593,7 @@ function getUserNameByNumber(number) {
                                             className={`w-full p-1 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-[#2c2e42] rounded-lg transition-colors text-left ${activeUserId === user.id
                                                 ? "bg-blue-50 dark:bg-[#2d3969] border border-blue-200 dark:border-blue-700"
                                                 : ""
-                                            }`}
+                                                }`}
                                         >
                                             <img
                                                 src={user.avatar}
@@ -610,10 +645,9 @@ function getUserNameByNumber(number) {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <div className={`w-2 h-2 rounded-full ${
-                                            connectionStatus === 'connected' ? 'bg-green-500' : 
-                                            connectionStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
-                                        }`} title={`Connection: ${connectionStatus}`}></div>
+                                        <div className={`w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' :
+                                                connectionStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
+                                            }`} title={`Connection: ${connectionStatus}`}></div>
                                         <button
                                             onClick={() => getMessages(activeUser.clientId)}
                                             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
@@ -632,22 +666,22 @@ function getUserNameByNumber(number) {
                                     ) : messages.length > 0 ? (
                                         messages.map((msg, index) => (
                                             <div
-                                                key={msg.id+index+"message" || index}
+                                                key={msg.id + index + "message" || index}
                                                 className={`flex ${msg.from === "user" ? "justify-end" : "justify-start"
-                                                }`}
+                                                    }`}
                                             >
                                                 <div className="flex flex-col max-w-xs lg:max-w-md">
                                                     <div
                                                         className={`px-4 py-2 rounded-2xl text-sm ${msg.from === "me"
                                                             ? "bg-blue-500 text-white rounded-br-md"
                                                             : "bg-white dark:bg-[#3a3b4d] text-gray-800 dark:text-gray-200 border dark:border-gray-600 rounded-bl-md"
-                                                        }`}
+                                                            }`}
                                                     >
                                                         {msg.text}
                                                     </div>
                                                     <div
                                                         className={`text-xs text-gray-400 mt-1 ${msg.from === "me" ? "text-right" : "text-left"
-                                                        }`}
+                                                            }`}
                                                     >
                                                         {new Date(msg.timestamp * 1000).toLocaleTimeString(
                                                             [],
@@ -668,12 +702,13 @@ function getUserNameByNumber(number) {
                                     )}
                                     <div ref={messagesEndRef} />
                                 </div>
-                                <ChatField 
-                                    handleSendMessage={handleSendMessage} 
-                                    newMessage={newMessage} 
-                                    setNewMessage={setNewMessage} 
+                                <ChatField
+                                    handleSendMessage={handleSendMessage}
+                                    newMessage={newMessage}
+                                    setNewMessage={setNewMessage}
                                     handleKeyPress={handleKeyPress}
                                     sendTemplate={sendTemplete}
+                                    sendImage={sendImage}
                                 />
                             </>
                         ) : (

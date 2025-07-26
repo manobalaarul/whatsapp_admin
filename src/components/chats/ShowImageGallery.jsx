@@ -3,10 +3,22 @@ import SummaryApi from "../../common/Summaryapi";
 import Axios from "../../utils/axios";
 import { MdClose } from "react-icons/md";
 
-const ShowImageGallery = ({ setShowImageGallery,setShowAttachment }) => {
+const ShowImageGallery = ({ setShowImageGallery, setShowAttachment,sendImage }) => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [previewUrls, setPreviewUrls] = useState([]);
+  const [selectedImageUrls, setSelectedImageUrls] = useState([]);
+
+  const handleImageSelect = (imageUrl) => {
+    setSelectedImageUrls((prevSelected) => {
+      if (prevSelected.includes(imageUrl)) {
+        return prevSelected.filter((url) => url !== imageUrl); // deselect
+      } else {
+        return [...prevSelected, imageUrl]; // select
+      }
+    });
+  };
+
 
   // Fetch images from backend
   const getImages = async () => {
@@ -31,6 +43,11 @@ const ShowImageGallery = ({ setShowImageGallery,setShowAttachment }) => {
     getImages();
   }, []);
 
+  useEffect(() => {
+    console.log("Selected URLs:", selectedImageUrls);
+  }, [selectedImageUrls]);
+
+
   // Cleanup preview URLs on unmount
   useEffect(() => {
     return () => {
@@ -53,9 +70,9 @@ const ShowImageGallery = ({ setShowImageGallery,setShowAttachment }) => {
             >
               {loading ? "Loading..." : "Refresh"}
             </button>
-            <button onClick={() => {setShowImageGallery(false);setShowAttachment(false);}}
-            className="px-3 py-1 bg-red-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400">
-              <MdClose size={20}/>
+            <button onClick={() => { setShowImageGallery(false); setShowAttachment(false); }}
+              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400">
+              <MdClose size={20} />
             </button>
           </div>
         </div>
@@ -84,12 +101,11 @@ const ShowImageGallery = ({ setShowImageGallery,setShowAttachment }) => {
 
                   {/* Image overlay with info and actions */}
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded-lg flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-2">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col gap-2 items-center">
                       <button
                         onClick={() =>
                           window.open(
-                            `https://growsooninfotech.com/webhook/api${image.url}` ||
-                              image.path,
+                            `https://growsooninfotech.com/webhook/api${image.url}` || image.path,
                             "_blank"
                           )
                         }
@@ -97,7 +113,26 @@ const ShowImageGallery = ({ setShowImageGallery,setShowAttachment }) => {
                       >
                         View
                       </button>
+
+                      <button
+                        onClick={() =>
+                          handleImageSelect(`https://growsooninfotech.com/webhook/api${image.url}`)
+                        }
+                        className={`px-2 py-1 text-white rounded text-xs ${selectedImageUrls.includes(
+                          `https://growsooninfotech.com/webhook/api${image.url}`
+                        )
+                          ? "bg-green-600 hover:bg-green-700"
+                          : "bg-gray-600 hover:bg-gray-700"
+                          }`}
+                      >
+                        {selectedImageUrls.includes(
+                          `https://growsooninfotech.com/webhook/api${image.url}`
+                        )
+                          ? "Selected"
+                          : "Select"}
+                      </button>
                     </div>
+
                   </div>
 
                   {/* Image info */}
@@ -106,15 +141,26 @@ const ShowImageGallery = ({ setShowImageGallery,setShowAttachment }) => {
                       <div className="font-medium truncate">
                         {image.name || image.filename || "Untitled"}
                       </div>
-                      {image.createdAt && (
+                      {image.realtime && (
                         <div className="text-gray-300">
-                          {new Date(image.createdAt).toLocaleDateString()}
+                          {new Date(image.realtime).toLocaleDateString()}
                         </div>
                       )}
                     </div>
                   </div>
                 </div>
               ))}
+            </div>
+            <div className="flex justify-end">
+              <button
+              onClick={()=>{sendImage(selectedImageUrls);setShowImageGallery(false);}}
+                type="submit"
+                disabled={selectedImageUrls.length === 0}
+
+                className="px-6 py-2 bg-primary text-white hover:text-black hover:dark:text-white rounded border border-primary hover:bg-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              >
+                {loading ? 'Sending...' : 'Send'}
+              </button>
             </div>
           </div>
         )}
