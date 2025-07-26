@@ -2,12 +2,18 @@ import React, { useEffect, useState } from 'react';
 import Axios from '../../utils/axios';
 import SummaryApi from '../../common/Summaryapi';
 import { toast } from 'react-toastify';
+import { MdImage, MdOutlineRampLeft, MdSnippetFolder } from 'react-icons/md';
+import ShowImageGallery from './ShowImageGallery';
 
 const ChatField = ({ handleSendMessage, setNewMessage, newMessage, handleKeyPress,sendTemplate }) => {
   const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
+  const [showAttachment, setShowAttachment] = useState(false);
+  const [showImageGallery, setShowImageGallery] = useState(false);
+
+
 
    const [templates, setTemplates] = useState([]);
-    const [templatesLoading, setTemplatesLoading] = useState(false);
+   const [templatesLoading, setTemplatesLoading] = useState(false);
 
     // Fetch templates from backend
     const fetchTemplates = async () => {
@@ -45,11 +51,11 @@ const ChatField = ({ handleSendMessage, setNewMessage, newMessage, handleKeyPres
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
             onClick={() => setShowAttachmentMenu(prev => !prev)}
           >
-            📎
+            <MdSnippetFolder size={20}/>
           </button>
 
           {showAttachmentMenu && (
-            <div className="absolute left-10 bottom-0 bg-white dark:bg-gray-800 shadow-lg rounded w-48 z-50 border border-gray-200 dark:border-gray-600">
+            <div className="absolute left-14 bottom-0 bg-white dark:bg-gray-800 shadow-lg rounded w-48 z-50 border border-gray-200 dark:border-gray-600">
               <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
                 {templates.map((template,index) =>(
                      <li>
@@ -78,9 +84,27 @@ const ChatField = ({ handleSendMessage, setNewMessage, newMessage, handleKeyPres
         />
 
         {/* Emoji Button */}
-        <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
-          😊
+        <button 
+        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+        onClick={() => setShowAttachment(prev => !prev)}
+        >
+          <MdImage size={20}/>
         </button>
+
+        {showAttachment && (
+            <div className="absolute right-32 bottom-0 bg-white dark:bg-gray-800 shadow-lg rounded w-48 z-50 border border-gray-200 dark:border-gray-600">
+              <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
+                     <li>
+                  <button
+                  onClick={()=>setShowImageGallery(prev => !prev)}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Images
+                  </button>
+                </li>
+              </ul>
+            </div>
+          )}
 
         {/* Send Button */}
         <button
@@ -91,6 +115,7 @@ const ChatField = ({ handleSendMessage, setNewMessage, newMessage, handleKeyPres
           Send
         </button>
       </div>
+      {showImageGallery && <ShowImageGallery setShowImageGallery={setShowImageGallery} setShowAttachment={setShowAttachment}/>}
     </div>
   );
 };
