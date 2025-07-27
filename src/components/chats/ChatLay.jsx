@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import Pusher from 'pusher-js';
+import Pusher from "pusher-js";
 import Axios from "../../utils/axios";
 import SummaryApi, { baseUrl } from "../../common/Summaryapi";
-import userImage from '../../assets/images/icons/user.png';
+import userImage from "../../assets/images/icons/user.png";
 import ChatField from "./ChatField";
-import notiLogo from '../../assets/images/logo/noti_logo.png'
+import ChatMessages from "./ChatMessages"; // Import the new component
+import notiLogo from "../../assets/images/logo/noti_logo.png";
 import { toast } from "react-toastify";
 
 const ChatLay = () => {
@@ -20,7 +21,7 @@ const ChatLay = () => {
     const eventSourceRef = useRef(null);
     const [lastTimestamp, setLastTimestamp] = useState(0);
     const [pusher, setPusher] = useState(null);
-    const [connectionStatus, setConnectionStatus] = useState('disconnected');
+    const [connectionStatus, setConnectionStatus] = useState("disconnected");
 
     // Add ref to track current active user for Pusher callbacks
     const activeUserRef = useRef(null);
@@ -37,36 +38,36 @@ const ChatLay = () => {
 
     // Initialize Pusher ONCE - remove dependency array
     useEffect(() => {
-        console.log('Initializing Pusher connection...');
+        console.log("Initializing Pusher connection...");
 
-        const pusherInstance = new Pusher('eb66e29c078e486151c2', {
-            cluster: 'ap2',
+        const pusherInstance = new Pusher("eb66e29c078e486151c2", {
+            cluster: "ap2",
             encrypted: true,
-            authEndpoint: '/pusher/auth',
+            authEndpoint: "/pusher/auth",
         });
 
         // Connection status tracking
-        pusherInstance.connection.bind('connected', () => {
-            console.log('Pusher connected');
-            setConnectionStatus('connected');
+        pusherInstance.connection.bind("connected", () => {
+            console.log("Pusher connected");
+            setConnectionStatus("connected");
         });
 
-        pusherInstance.connection.bind('disconnected', () => {
-            console.log('Pusher disconnected');
-            setConnectionStatus('disconnected');
+        pusherInstance.connection.bind("disconnected", () => {
+            console.log("Pusher disconnected");
+            setConnectionStatus("disconnected");
         });
 
-        pusherInstance.connection.bind('error', (error) => {
-            console.error('Pusher connection error:', error);
-            setConnectionStatus('error');
+        pusherInstance.connection.bind("error", (error) => {
+            console.error("Pusher connection error:", error);
+            setConnectionStatus("error");
         });
 
         // Subscribe to the channel
-        const channel = pusherInstance.subscribe('whatsapp-channel');
+        const channel = pusherInstance.subscribe("whatsapp-channel");
 
         // Listen for message-sent events (outgoing messages)
-        channel.bind('message-sent', (data) => {
-            console.log('New message sent via Pusher:', data);
+        channel.bind("message-sent", (data) => {
+            console.log("New message sent via Pusher:", data);
 
             const currentActiveUser = activeUserRef.current;
 
@@ -82,22 +83,24 @@ const ChatLay = () => {
             };
 
             // Always update last messages map
-            setLastMessagesMap(prev => ({
+            setLastMessagesMap((prev) => ({
                 ...prev,
                 [data.number]: {
                     text: data.message,
                     timestamp: data.timestamp,
-                }
+                },
             }));
 
             // Add to current chat if it's for the active user
             if (currentActiveUser && data.number === currentActiveUser.clientId) {
-                console.log('Adding sent message to current chat:', newMsg);
-                setMessages(prevMessages => {
+                console.log("Adding sent message to current chat:", newMsg);
+                setMessages((prevMessages) => {
                     // Check if message already exists to avoid duplicates
-                    const exists = prevMessages.some(msg =>
-                        (msg.id === data.db_id) ||
-                        (msg.text === data.message && Math.abs(msg.timestamp - data.timestamp) < 2)
+                    const exists = prevMessages.some(
+                        (msg) =>
+                            msg.id === data.db_id ||
+                            (msg.text === data.message &&
+                                Math.abs(msg.timestamp - data.timestamp) < 2)
                     );
                     if (!exists) {
                         return [...prevMessages, newMsg];
@@ -106,17 +109,17 @@ const ChatLay = () => {
                 });
                 setShouldScroll(true);
             } else {
-                console.log('Message not for current active user:', {
+                console.log("Message not for current active user:", {
                     messageNumber: data.messageNumber,
-                    activeUserClientId: currentActiveUser?.clientId
+                    activeUserClientId: currentActiveUser?.clientId,
                 });
                 showNotification(getUserNameByNumber(data.messageNumber), data.message);
             }
         });
 
         // Listen for message-received events (incoming messages)
-        channel.bind('message-received', (data) => {
-            console.log('New message received via Pusher:', data);
+        channel.bind("message-received", (data) => {
+            console.log("New message received via Pusher:", data);
 
             const currentActiveUser = activeUserRef.current;
 
@@ -131,20 +134,22 @@ const ChatLay = () => {
             };
 
             // Always update last messages map
-            setLastMessagesMap(prev => ({
+            setLastMessagesMap((prev) => ({
                 ...prev,
                 [data.number]: {
                     text: data.message,
                     timestamp: data.timestamp,
-                }
+                },
             }));
 
             // Add to current chat if it's for the active user
             if (currentActiveUser && data.number === currentActiveUser.clientId) {
-                setMessages(prevMessages => {
-                    const exists = prevMessages.some(msg =>
-                        (msg.id === data.db_id) ||
-                        (msg.text === data.message && Math.abs(msg.timestamp - data.timestamp) < 2)
+                setMessages((prevMessages) => {
+                    const exists = prevMessages.some(
+                        (msg) =>
+                            msg.id === data.db_id ||
+                            (msg.text === data.message &&
+                                Math.abs(msg.timestamp - data.timestamp) < 2)
                     );
                     if (!exists) {
                         return [...prevMessages, newMsg];
@@ -159,24 +164,24 @@ const ChatLay = () => {
 
         // Cleanup on component unmount only
         return () => {
-            console.log('Cleaning up Pusher connection...');
+            console.log("Cleaning up Pusher connection...");
             if (pusherInstance) {
-                pusherInstance.unsubscribe('whatsapp-channel');
+                pusherInstance.unsubscribe("whatsapp-channel");
                 pusherInstance.disconnect();
             }
         };
     }, []); // Empty dependency array - initialize only once
+    
     function getUserNameByNumber(number) {
-        const user = users.find(user => user.clientId === number);
-        return user ? user?.name : 'Unknown User';
+        const user = users.find((user) => user.clientId === number);
+        return user ? user?.name : "Unknown User";
     }
-
 
     const currentNotificationRef = useRef(null);
     const messageQueueRef = useRef([]);
 
     const showNotification = (title, message) => {
-        if (Notification.permission === 'granted' && document.hidden) {
+        if (Notification.permission === "granted" && document.hidden) {
             // Add new message to queue
             messageQueueRef.current.push({ title, message });
 
@@ -189,11 +194,16 @@ const ChatLay = () => {
             let notificationBody;
             if (messageQueueRef.current.length === 1) {
                 const msg = messageQueueRef.current[0].message;
-                notificationBody = msg.length > 50 ? msg.substring(0, 50) + '...' : msg;
+                notificationBody = msg.length > 50 ? msg.substring(0, 50) + "..." : msg;
             } else {
-                const latestMsg = messageQueueRef.current[messageQueueRef.current.length - 1].message;
-                const truncatedMsg = latestMsg.length > 30 ? latestMsg.substring(0, 30) + '...' : latestMsg;
-                notificationBody = `${truncatedMsg} (+${messageQueueRef.current.length - 1} more messages)`;
+                const latestMsg =
+                    messageQueueRef.current[messageQueueRef.current.length - 1].message;
+                const truncatedMsg =
+                    latestMsg.length > 30
+                        ? latestMsg.substring(0, 30) + "..."
+                        : latestMsg;
+                notificationBody = `${truncatedMsg} (+${messageQueueRef.current.length - 1
+                    } more messages)`;
             }
 
             // Create new notification
@@ -201,7 +211,7 @@ const ChatLay = () => {
                 body: notificationBody,
                 icon: notiLogo,
                 badge: notiLogo,
-                tag: 'whatsapp-message',
+                tag: "whatsapp-message",
             });
 
             // Clear queue when notification is clicked
@@ -230,11 +240,11 @@ const ChatLay = () => {
             }
         };
 
-        document.addEventListener('visibilitychange', handleVisibilityChange);
+        document.addEventListener("visibilitychange", handleVisibilityChange);
 
         // Cleanup on unmount
         return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
             if (currentNotificationRef.current) {
                 currentNotificationRef.current.close();
             }
@@ -243,9 +253,9 @@ const ChatLay = () => {
 
     // Request notification permission on component mount
     useEffect(() => {
-        if (Notification.permission === 'default') {
-            Notification.requestPermission().then(permission => {
-                console.log('Notification permission:', permission);
+        if (Notification.permission === "default") {
+            Notification.requestPermission().then((permission) => {
+                console.log("Notification permission:", permission);
             });
         }
     }, []);
@@ -275,7 +285,7 @@ const ChatLay = () => {
     }, [messages, shouldScroll, loading]);
 
     const handleUserSelect = (userId) => {
-        console.log('Selecting user:', userId);
+        console.log("Selecting user:", userId);
         setActiveUserId(userId);
         setSidebarOpen(false);
 
@@ -321,7 +331,7 @@ const ChatLay = () => {
 
     const getMessages = async (clientId = "919500971102") => {
         try {
-            console.log('Loading messages for client:', clientId);
+            console.log("Loading messages for client:", clientId);
             setLoading(true);
             const response = await Axios({
                 ...SummaryApi.get_messages,
@@ -332,7 +342,8 @@ const ChatLay = () => {
 
             if (response.data.success) {
                 const transformedMessages = response.data.data.map((msg) => {
-                    const isFromAdmin = msg.message_type === "welcome" || msg.admin === msg.client;
+                    const isFromAdmin =
+                        msg.message_type === "welcome" || msg.admin === msg.client;
 
                     return {
                         id: msg.id,
@@ -381,11 +392,16 @@ const ChatLay = () => {
 
         const currentActiveUser = users.find((user) => user.id === activeUserId);
         if (!currentActiveUser) {
-            console.error('No active user found');
+            console.error("No active user found");
             return;
         }
 
-        console.log('Sending message:', newMessage, 'to:', currentActiveUser.clientId);
+        console.log(
+            "Sending message:",
+            newMessage,
+            "to:",
+            currentActiveUser.clientId
+        );
 
         try {
             const formData = new FormData();
@@ -394,15 +410,15 @@ const ChatLay = () => {
 
             const response = await Axios({
                 ...SummaryApi.send_message,
-                data: formData
+                data: formData,
             });
 
-            console.log('Send message response:', response.data);
+            console.log("Send message response:", response.data);
 
             if (response.data.status === "success") {
                 setNewMessage("");
                 // Message will be added via Pusher event
-                console.log('Message sent successfully, waiting for Pusher event...');
+                console.log("Message sent successfully, waiting for Pusher event...");
             } else {
                 console.error("Message send failed:", response.data);
                 // Fallback: add message locally
@@ -452,22 +468,25 @@ const ChatLay = () => {
 
             const response = await Axios({
                 ...SummaryApi.send_template,
-                data: formData
+                data: formData,
             });
             console.log(response.data);
 
             if (response.data.status === "success") {
                 console.log(`Sent to ${activeUser.name}:`, response.data);
-                toast.success(`Template sent to ${activeUser.name}`, { autoClose: 2000 });
+                toast.success(`Template sent to ${activeUser.name}`, {
+                    autoClose: 2000,
+                });
                 setLoading(false);
-
             } else {
                 console.warn(`Failed to send to ${activeUser.name}:`, response.data);
-                toast.error(`Failed to send to ${activeUser.name}`, { autoClose: 3000 });
+                toast.error(`Failed to send to ${activeUser.name}`, {
+                    autoClose: 3000,
+                });
             }
         } catch (error) {
-            console.error('❌ Error while sending message:', error);
-            toast.error('Error while sending messages', { autoClose: 3000 });
+            console.error("❌ Error while sending message:", error);
+            toast.error("Error while sending messages", { autoClose: 3000 });
         } finally {
             setLoading(false);
         }
@@ -479,16 +498,16 @@ const ChatLay = () => {
             formData.append("number", activeUser.clientId);
             if (Array.isArray(files)) {
                 files.forEach((file, index) => {
-                    formData.append("files[]", file);  // Important: use "files[]" to denote an array
+                    formData.append("files[]", file); // Important: use "files[]" to denote an array
                 });
             } else {
                 formData.append("files[]", files); // fallback for single file
             }
-            formData.append("type", 'image');
+            formData.append("type", "image");
 
             const response = await Axios({
                 ...SummaryApi.send_image,
-                data: formData
+                data: formData,
             });
             console.log(response.data);
 
@@ -496,14 +515,15 @@ const ChatLay = () => {
                 console.log(`Images to ${activeUser.name}:`, response.data);
                 toast.success(`Images sent to ${activeUser.name}`, { autoClose: 2000 });
                 setLoading(false);
-
             } else {
                 console.warn(`Failed to send to ${activeUser.name}:`, response.data);
-                toast.error(`Failed to send to ${activeUser.name}`, { autoClose: 3000 });
+                toast.error(`Failed to send to ${activeUser.name}`, {
+                    autoClose: 3000,
+                });
             }
         } catch (error) {
-            console.error('❌ Error while sending message:', error);
-            toast.error('Error while sending messages', { autoClose: 3000 });
+            console.error("❌ Error while sending message:", error);
+            toast.error("Error while sending messages", { autoClose: 3000 });
         } finally {
             setLoading(false);
         }
@@ -551,9 +571,14 @@ const ChatLay = () => {
                                         alt="user"
                                         className="w-12 h-12 rounded-full"
                                     />
-                                    <span className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white dark:border-darkinfo ${connectionStatus === 'connected' ? 'bg-green-500' :
-                                        connectionStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
-                                        }`}></span>
+                                    <span
+                                        className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white dark:border-darkinfo ${connectionStatus === "connected"
+                                                ? "bg-green-500"
+                                                : connectionStatus === "error"
+                                                    ? "bg-red-500"
+                                                    : "bg-yellow-500"
+                                            }`}
+                                    ></span>
                                 </div>
                                 <div>
                                     <h6 className="text-sm font-semibold">Growsoon Infotech</h6>
@@ -591,8 +616,8 @@ const ChatLay = () => {
                                             key={user.id + "user"}
                                             onClick={() => handleUserSelect(user.id)}
                                             className={`w-full p-1 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-[#2c2e42] rounded-lg transition-colors text-left ${activeUserId === user.id
-                                                ? "bg-blue-50 dark:bg-[#2d3969] border border-blue-200 dark:border-blue-700"
-                                                : ""
+                                                    ? "bg-blue-50 dark:bg-[#2d3969] border border-blue-200 dark:border-blue-700"
+                                                    : ""
                                                 }`}
                                         >
                                             <img
@@ -607,9 +632,7 @@ const ChatLay = () => {
                                                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                                                     {lastMessage}
                                                 </p>
-                                                <p className="text-xs text-gray-400">
-                                                    {lastTime}
-                                                </p>
+                                                <p className="text-xs text-gray-400">{lastTime}</p>
                                             </div>
                                         </button>
                                     );
@@ -645,9 +668,15 @@ const ChatLay = () => {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <div className={`w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' :
-                                            connectionStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
-                                            }`} title={`Connection: ${connectionStatus}`}></div>
+                                        <div
+                                            className={`w-2 h-2 rounded-full ${connectionStatus === "connected"
+                                                    ? "bg-green-500"
+                                                    : connectionStatus === "error"
+                                                        ? "bg-red-500"
+                                                        : "bg-yellow-500"
+                                                }`}
+                                            title={`Connection: ${connectionStatus}`}
+                                        ></div>
                                         <button
                                             onClick={() => getMessages(activeUser.clientId)}
                                             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
@@ -658,60 +687,13 @@ const ChatLay = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex-1 scrollbar-none overflow-y-auto p-4 space-y-4 bg-gray-100 dark:bg-[#2b2b3d]">
-                                    {loading ? (
-                                        <div className="flex justify-center items-center h-full">
-                                            <div className="text-gray-500">Loading messages...</div>
-                                        </div>
-                                    ) : messages.length > 0 ? (
-                                        messages.map((msg, index) => (
-                                            <div
-                                                key={msg.id + index + "message" || index}
-                                                className={`flex ${msg.from === "user" ? "justify-end" : "justify-start"
-                                                    }`}
-                                            >
-                                                <div className="flex flex-col max-w-xs lg:max-w-md">
-                                                    <div
-                                                        className={`${msg.text.endsWith(".jpg") ? "px-1 rounded py-1" : "px-4 rounded-2xl py-2"} text-sm 
-    ${msg.from === "me"
-                                                                ? "bg-white text-gray-800 rounded-br-md"
-                                                                : "bg-blue-500 dark:bg-[#3a3b4d] text-white dark:text-gray-200 border dark:border-gray-600 rounded-bl-md"
-                                                            }`}
-                                                    >
-                                                        {msg.text.endsWith(".jpg") ? (
-                                                            <img
-                                                                src={msg.text}
-                                                                alt="Uploaded"
-                                                                className="w-48 object-cover rounded"
-                                                            />
-                                                        ) : (
-                                                            <p>{msg.text}</p>
-                                                        )}
-                                                    </div>
+                                {/* Use the ChatMessages component */}
+                                <ChatMessages 
+                                    messages={messages}
+                                    loading={loading}
+                                    messagesEndRef={messagesEndRef}
+                                />
 
-                                                    <div
-                                                        className={`text-xs text-gray-400 mt-1 ${msg.from === "me" ? "text-left" : "text-right"
-                                                            }`}
-                                                    >
-                                                        {new Date(msg.timestamp * 1000).toLocaleTimeString(
-                                                            [],
-                                                            {
-                                                                hour: "2-digit",
-                                                                minute: "2-digit",
-                                                                hour12: true,
-                                                            }
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="flex justify-center items-center h-full">
-                                            <div className="text-gray-500">No messages yet</div>
-                                        </div>
-                                    )}
-                                    <div ref={messagesEndRef} />
-                                </div>
                                 <ChatField
                                     handleSendMessage={handleSendMessage}
                                     newMessage={newMessage}

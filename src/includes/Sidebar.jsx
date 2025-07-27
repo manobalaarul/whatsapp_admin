@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { MdChatBubble, MdHome, MdPerson, MdSettings, MdClose, MdGroup, MdGroupWork, MdImage, MdVideocam, MdVideoCall } from "react-icons/md";
-import Logo from '../assets/images/logo/growsoon.jpg';
+import Logo from '../assets/images/logo/growsoon.png';
 
 const menu = [
   {

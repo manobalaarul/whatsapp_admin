@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { MdDarkMode, MdLightMode, MdMenu, MdNotifications, MdAccountCircle } from "react-icons/md";
+import { MdDarkMode, MdLightMode, MdMenu, MdNotifications, MdAccountCircle, MdLogout } from "react-icons/md";
+import { useAuth } from "../context/AuthContext";
 
 const Navbar = ({ toggleSidebar, toggleDesktopSidebar }) => {
   const [darkMode, setDarkMode] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const {logout} = useAuth();
 
   // Initialize theme on mount
   useEffect(() => {
@@ -131,14 +133,15 @@ const Navbar = ({ toggleSidebar, toggleDesktopSidebar }) => {
 
         {/* Profile Button */}
         <button 
-          className="group relative p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-all duration-200 hover:bg-green-50 dark:hover:bg-green-900/20 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+          onClick={logout}
+          className="group relative p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 hover:bg-green-50 dark:hover:bg-green-900/20 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
           aria-label="Profile"
         >
-          <MdAccountCircle size={20} className="transition-transform duration-200 group-hover:rotate-12"/>
+          <MdLogout size={20} className="transition-transform duration-200 group-hover:rotate-12"/>
 
           {/* Tooltip */}
           <div className="absolute right-0 top-full mt-2 bg-gray-900 dark:bg-gray-700 text-white px-2 py-1 rounded text-xs font-medium opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap">
-            Profile
+            Logout
             <div className="absolute bottom-full right-2 w-2 h-2 bg-gray-900 dark:bg-gray-700 rotate-45 mb-1"></div>
           </div>
         </button>

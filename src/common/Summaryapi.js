@@ -1,42 +1,58 @@
 export const baseUrl = import.meta.env.VITE_API_URL;
 
 const SummaryApi = {
-    get_messages:{
-        url:"/get_messages.php",
-        method : "get"
+    get_messages: {
+        url: "/get_messages.php",
+        method: "get"
     },
-    get_users:{
-        url:"/get_users.php",
-        method : "get"
+    get_users: {
+        url: "/get_users.php",
+        method: "get"
     },
-    get_templates:{
-        url:"/get_templates.php",
-        method : "get"
+    get_templates: {
+        url: "/get_templates.php",
+        method: "get"
     },
-    send_message:{
-        url:"/send_messages/single_concept.php",
-        method : "post"
+    send_message: {
+        url: "/send_messages/single_concept.php",
+        method: "post"
     },
-    send_template:{
-        url:"/send_messages/template_concept.php",
-        method : "post"
+    send_template: {
+        url: "/send_messages/template_concept.php",
+        method: "post"
     },
-    get_images:{
-        url:"/images.php/images",
-        method : "get"
+    get_images: {
+        url: "/images.php/images",
+        method: "get"
     },
-    upload_images:{
-        url:"/images.php/images/upload",
-        method : "post"
+    upload_images: {
+        url: "/images.php/images/upload",
+        method: "post"
     },
-    delete_image:{
-        url:"/images.php/images/delete",
-        method : "delete"
+    delete_image: {
+        url: "/images.php/images/delete",
+        method: "delete"
     },
-    send_image:{
-        url:"/send_messages/file_concept.php",
-        method : "post"
-    }
+    send_image: {
+        url: "/send_messages/file_concept.php",
+        method: "post"
+    },
+    login: {
+        url: "/auth/login.php",
+        method: "POST"
+    },
+    register: {
+        url: '/auth/register.php',
+        method: 'POST'
+    },
+    logout: {
+        url: '/auth/logout.php',
+        method: 'POST'
+    },
+    verifyToken: {
+        url: '/auth/verify_token.php',
+        method: 'GET'
+    },
 }
 
 export default SummaryApi

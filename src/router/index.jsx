@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import Home from "../pages/Home";
 import App from "../App";
 import Profile from "../pages/Profile";
@@ -10,6 +10,7 @@ import BulkMessage from "../pages/BulkMessage";
 import TemplateMessage from "../pages/TemplatesMessage";
 import Users from "../pages/Users";
 import ImageGallery from "../pages/ImageGallery";
+import { ProtectedRoute } from "../context/AuthContext";
 
 const router = createBrowserRouter(
   [
@@ -18,49 +19,57 @@ const router = createBrowserRouter(
       element: <App />,
       children: [
         {
-          path: "",
-          element: <Home />,
+          index: true, // matches exactly '/auth'
+          element: <Navigate to="/home" replace={true} />, // redirects to '/auth/login'
+        },
+        {
+          path: "home",
+          element: <ProtectedRoute><Home /></ProtectedRoute>,
         },
         {
           path: "chat",
-          element: <Chat />,
+          element: <ProtectedRoute><Chat /></ProtectedRoute>,
         },
         {
           path: "profile",
-          element: <Profile />,
+          element: <ProtectedRoute><Profile /></ProtectedRoute>,
         },
         {
           path: "settings",
-          element: <Settings />,
+          element: <ProtectedRoute><Settings /></ProtectedRoute>,
         },
         {
           path: "bulk_message",
-          element: <BulkMessage />,
+          element: <ProtectedRoute><BulkMessage /></ProtectedRoute>,
         },
         {
           path: "template_message",
-          element: <TemplateMessage />,
+          element: <ProtectedRoute><TemplateMessage /></ProtectedRoute>,
         },
         {
           path: "users",
-          element: <Users />,
+          element: <ProtectedRoute><Users /></ProtectedRoute>,
         },
         {
           path: "image_gallery",
-          element: <ImageGallery />,
+          element: <ProtectedRoute><ImageGallery /></ProtectedRoute>,
         },
       ],
     },
-    {
-      path: "/auth",
-      element: <Auth />,
-      children: [
-        {
-          path: "login",
-          element: <Login />,
-        },
-      ],
-    },
+   {
+    path: "/auth",
+    element: <Auth />,
+    children: [
+      {
+        index: true, // matches exactly '/auth'
+        element: <Navigate to="login" replace={true} />, // redirects to '/auth/login'
+      },
+      {
+        path: "login",
+        element: <Login />,
+      },
+    ],
+  },
   ],
   {
     basename: "/whatsapp_admin",
