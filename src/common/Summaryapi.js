@@ -1,6 +1,14 @@
 export const baseUrl = import.meta.env.VITE_API_URL;
 
 const SummaryApi = {
+    get_count: {
+        url: '/data_count.php',
+        method: 'GET'
+    },
+    get_messages_count: {
+        url: '/get_messages_count.php',
+        method: 'GET'
+    },
     get_messages: {
         url: "/get_messages.php",
         method: "get"
